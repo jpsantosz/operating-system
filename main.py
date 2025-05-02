@@ -11,8 +11,9 @@ def main():
         Tarefa("Tarefa 4")
     ]
     
-# Cria o escalonador com quantum de 4 segundos
+    # Cria o escalonador com quantum de 4 segundos
     escalonador = Escalonador(tarefas, quantum=4)
+    escalonador.iniciar()
 
 if __name__ == "__main__":
     main()
