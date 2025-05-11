@@ -1,58 +1,53 @@
 # importando as bibliotecas necessárias
-from multiprocessing import Process
 import os
 import time
 import signal
+from tarefa import Tarefa
 
-# criando a classe do Escalonador 
 class Escalonador:
-    def __init__(self, tarefas, quantum, arquivo_log='log.txt'):
-        self.tarefas = tarefas
+    def __init__(self, quantum=2, log_path='log.txt'):
         self.quantum = quantum
-        self.arquivo_log = arquivo_log
-        self._iniciar_log()
-        
-    # criando a função para iniciar a escrita no arquivo de log
-    def _iniciar_log(self):
-        with open(self.arquivo_log, "w") as f:
-            f.write("Log de execução do escalonador\n")
+        self.tarefas = []
+        self.fila = []
+        self.log_path = log_path
 
-    def _registrar_log(self, mensagem):
-        timestamp = time.strftime("%H:%M:%S", time.localtime())
-        log_message = f"[{timestamp}] {mensagem}"
-        print(log_message)
-        with open(self.arquivo_log, "a") as f:
-            f.write(log_message + "\n")
+        # abrir o arquivo txt
+        with open(self.log_path, 'w') as f:
+            f.write("Log de execução do escalonador: \n")
+
+    # adiciona as tarefas na lista de tarefas
+    def adicionar_tarefa(self, tarefa):
+        self.tarefas.append(tarefa)
 
     def iniciar(self):
         for tarefa in self.tarefas:
             tarefa.iniciar()
+            self.fila.append(tarefa)
 
-        tempo_inicial = time.time()
+        # Dá tempo para os processos entrarem em SIGSTOP
+        time.sleep(1)
 
-        while self.tarefas:
-            for tarefa in list(self.tarefas):
-                if not tarefa.esta_vivo():
-                    self._registrar_log(f"Tarefa {tarefa.nome} (PID {tarefa.pid}) já terminou.")
-                    self.tarefas.remove(tarefa)
-                    continue
+        while self.fila:
+            tarefa = self.fila.pop(0)
 
-                self._registrar_log(f"Executando {tarefa.nome} (PID {tarefa.pid})")
+            if not tarefa.esta_ativa():
+                continue  # processo já terminou
 
-                try:
-                    os.kill(tarefa.pid, signal.SIGCONT)
-                except ProcessLookupError:
-                    self._registrar_log(f"Erro: Processo {tarefa.pid} não encontrado (já finalizado).")
-                    self.tarefas.remove(tarefa)
-                    continue
+            os.kill(tarefa.pid, signal.SIGCONT)
+            self.registrar_log(f"Executando {tarefa.nome} (PID {tarefa.pid})")
+            time.sleep(self.quantum)
+            os.kill(tarefa.pid, signal.SIGSTOP)
 
-                time.sleep(self.quantum)
+            if tarefa.esta_ativa():
+                self.fila.append(tarefa)
+            else:
+                tarefa.terminar()
 
-                try:
-                    os.kill(tarefa.pid, signal.SIGSTOP)
-                except ProcessLookupError:
-                    self._registrar_log(f"Erro ao parar: Processo {tarefa.pid} não encontrado.")
-                    self.tarefas.remove(tarefa)
+        self.registrar_log("Todas as tarefas foram concluídas.")
 
-        tempo_total = time.time() - tempo_inicial
-        self._registrar_log(f"Todas as tarefas concluídas em {tempo_total:.2f} segundos.")
+    def registrar_log(self, mensagem):
+        timestamp = time.strftime("[%H:%M:%S]")
+        print(f"{timestamp} {mensagem}")
+        
+        with open(self.log_path, 'a') as f:
+            f.write(f"{timestamp} {mensagem}\n")

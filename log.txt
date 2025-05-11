@@ -1,0 +1,16 @@
+Log de execução do escalonador
+[11:36:25] Executando Tarefa 1 (PID 2307)
+[11:36:27] Executando Tarefa 2 (PID 2308)
+[11:36:29] Executando Tarefa 3 (PID 2309)
+[11:36:31] Executando Tarefa 4 (PID 2310)
+[11:36:32] Executando Tarefa 1 (PID 2307)
+[11:36:34] Executando Tarefa 2 (PID 2308)
+[11:36:36] Executando Tarefa 3 (PID 2309)
+[11:36:38] Executando Tarefa 4 (PID 2310)
+[11:36:40] Executando Tarefa 1 (PID 2307)
+[11:36:42] Executando Tarefa 2 (PID 2308)
+[11:36:44] Executando Tarefa 3 (PID 2309)
+[11:36:46] Executando Tarefa 4 (PID 2310)
+[11:36:48] Executando Tarefa 4 (PID 2310)
+[11:36:50] Executando Tarefa 4 (PID 2310)
+[11:36:53] Todas as tarefas foram concluídas.
